@@ -8,3 +8,49 @@
 
 - name: Obtain Let's Encrypt certificate for domain
   ansible.builtin.command: certbot --nginx --non-interactive -d {{ domain_name }} -m {{ acme_email }} --agree-tos 
+
+- name: Create service file for Custom Certbot Service 
+  ansible.builtin.copy:
+    dest: /lib/systemd/system/certbot_custom.service
+    content: |
+      [Unit]
+      Description="Certbot_Custom"
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/bin/certbot -q renew
+      PrivateTmp=true 
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "RedHat"
+
+- name: Enable and start Custom Certbot Service
+  ansible.builtin.systemd:
+    name: certbot_custom.service
+    enabled: yes
+    state: started
+  when: ansible_os_family == "RedHat"
+
+- name: Create timer file for Custom Certbot Service
+  ansible.builtin.copy:
+    dest: /lib/systemd/system/certbot_custom.timer
+    content: |
+      [Unit]
+      Description="Run Certbot_Custom Service Twice Daily"
+      [Timer]
+      OnCalendar=*-*-* 00,12:00:00
+      RandomizedDelaySec=43200
+      Persistent=true
+      [Install]
+      WantedBy=timers.target
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "RedHat"
+
+- name: Enable and start Custom Certbot Service Timer
+  ansible.builtin.systemd:
+    name: certbot_custom.timer
+    enabled: yes
+    state: started
+  when: ansible_os_family == "RedHat"

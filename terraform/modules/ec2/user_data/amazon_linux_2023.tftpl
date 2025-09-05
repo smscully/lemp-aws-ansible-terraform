@@ -16,17 +16,20 @@ sed -i '/OnCalendar=\*-\*-\* 6:00/c\OnCalendar=\*-\*-\* 3:00' /usr/lib/systemd/s
 
 # Create SSH user, copy SSH keys and known_hosts, and add sudoers permissions
 adduser ssh_al
-usermod -amG sudoers ssh_al
 cp -r /home/ec2-user/.ssh /home/ssh_al/
 chown -R ssh_al:ssh_al /home/ssh_al/.ssh
 echo "ssh_al ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ssh_al
 
 # Update sshd_config settings to increase security
 echo "Port ${ssh_port}" >> /etc/ssh/sshd_config
-echo -e "AllowUsers ec2-user@${ssh_ip} ssh_al@${ssh_ip}" >> /etc/ssh/sshd_config
+echo -e "AllowUsers ssh_al@${ssh_ip}" >> /etc/ssh/sshd_config
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 systemctl restart sshd
+  
+# Disable root and ec2-user users
+usermod -s /usr/sbin/nologin root
+usermod -s /usr/sbin/nologin ec2-user
 
 # Configure nftables
 yum install nftables -y

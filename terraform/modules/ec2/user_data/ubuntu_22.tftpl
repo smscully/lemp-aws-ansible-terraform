@@ -22,18 +22,21 @@ sed -i '/\/\/Unattended-Upgrade::Automatic-Reboot-Time "02:00";/c\Unattended-Upg
 systemctl restart unattended-upgrades
 
 # Create SSH user, copy SSH keys and known_hosts, and add sudoers permissions
-adduser ssh_ubuntu
-usermod -amG sudoers ssh_ubuntu
+adduser --disabled-password --shell /bin/bash --gecos "SSH Ubuntu User" ssh_ubuntu
 cp -r /home/ubuntu/.ssh /home/ssh_ubuntu/
 chown -R ssh_ubuntu:ssh_ubuntu /home/ssh_ubuntu/.ssh
 echo "ssh_ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ssh_ubuntu
 
 # Update sshd_config settings to increase security
 echo "Port ${ssh_port}" >> /etc/ssh/sshd_config
-echo -e "AllowUsers ubuntu@${ssh_ip} ssh_ubuntu@${ssh_ip}" >> /etc/ssh/sshd_config
+echo -e "AllowUsers ssh_ubuntu@${ssh_ip}" >> /etc/ssh/sshd_config
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 systemctl restart sshd
+
+# Disable root and ubuntu users
+usermod -s /usr/sbin/nologin root
+usermod -s /usr/sbin/nologin ubuntu
 
 # Configure UFW
 ufw allow 80
