@@ -1,0 +1,25 @@
+# PHP Role
+
+# Installs the required PHP packages.
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+- name: Install latest version of PHP (Debian-based)
+  ansible.builtin.apt:
+    name:
+    - php
+    - php-fpm
+    - php-mysql
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install latest version of PHP (RHEL-based)
+  ansible.builtin.dnf:
+    name:
+    - php
+    - php-fpm
+    - php-mysqlnd
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "RedHat"

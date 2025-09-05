@@ -1,0 +1,51 @@
+name: "Destroy AWS Infrastructure"
+
+on:
+  workflow_dispatch:
+    branches:
+    - main
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  TF_LOG: INFO
+  TF_STATE_S3_BUCKET: ${{ secrets.TF_STATE_S3_BUCKET}}
+  TF_VERSION: 1.13.1
+
+jobs:
+
+  terraform:
+    name: "Run Terraform to Destroy AWS Infrastructure"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout repository to runner
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform on runner
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: $TF_VERSION
+ 
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="backend.cnf" -backend-config="bucket=$TF_STATE_S3_BUCKET"
+
+      - name: Terraform Plan Destroy
+        id: plan_destroy
+        run: terraform plan -destroy -var-file="example.tfvars" -no-color -input=false
+        env:
+          TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
+        continue-on-error: false
+
+      - name: Terraform Destroy
+        id: destroy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+        run: terraform destroy -var-file="example.tfvars" -auto-approve -input=false
+        env:
+          TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
+        continue-on-error: false

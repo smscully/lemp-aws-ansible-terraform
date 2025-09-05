@@ -1,0 +1,49 @@
+- name: Install latest version of Python packages
+  ansible.builtin.package:
+    name:
+    - python3
+    - python3-pip
+    state: present
+    update_cache: yes
+
+- name: Install latest version of PyMySQL
+  ansible.builtin.pip:
+    name:
+    - pymysql
+    state: latest
+
+- name: Download MariaDB GPG Key (RHEL-based)
+  ansible.builtin.get_url:
+    url: https://supplychain.mariadb.com/MariaDB-Server-GPG-KEY
+    dest: /tmp/maria.key
+    mode: 0644
+  when: ansible_os_family == "RedHat"
+
+- name: Import MariaDB GPG Key (RHEL-based)
+  ansible.builtin.shell: "rpm --import /tmp/maria.key"
+  args:
+    executable: /bin/bash
+  register: import_result
+  ignore_errors: false
+  changed_when: "import_result.rc == 0"
+  when: ansible_os_family == "RedHat"
+
+- name: Create MariaDB Repo file (RHEL-based)
+  ansible.builtin.template:
+    src: templates/mariadb.repo.j2
+    dest: /etc/yum.repos.d/mariadb.repo
+    owner: root
+    group: root
+    mode: 0644
+  when: ansible_os_family == "RedHat"
+
+- name: Install latest version of MariaDB packages
+  ansible.builtin.package:
+    name: "{{ database_packages }}"
+    state: latest
+    update_cache: true
+
+- name: Start MariaDB
+  ansible.builtin.systemd:
+    state: started
+    name: mariadb

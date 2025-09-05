@@ -1,0 +1,11 @@
+# Web Server Role
+
+# Installs web server packages and copies files to the web server's root directory. 
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+- name: Install web server
+  ansible.builtin.include_tasks: "{{ web_server_type }}.yaml"
+
+- name: Configure Certbot
+  ansible.builtin.include_tasks: certbot.yaml

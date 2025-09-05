@@ -1,0 +1,4 @@
+database_packages:
+  - mariadb-server
+  - mariadb-client
+login_unix_socket: /var/run/mysqld/mysqld.sock

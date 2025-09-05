@@ -1,0 +1,22 @@
+server {
+
+    listen 80;
+    listen [::]:80;
+    server_name {{ domain_name }};
+    root /var/www/{{ domain_name }}/html;
+    index index.html index.php;
+
+    error_page 400 403 404 405 414 416 /error.html;
+    error_page 500 501 502 503 504 /error.html;
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php{{ php_version.stdout }}-fpm.sock;
+
+        #Set env vars
+        fastcgi_param DATABASE_NAME "{{ lookup('env', 'DATABASE_NAME') }}";
+        fastcgi_param PHP_USERNAME "{{ lookup('env', 'PHP_USERNAME') }}";
+        fastcgi_param PHP_PASSWORD "{{ lookup('env', 'PHP_PASSWORD') }}";
+    }
+
+}

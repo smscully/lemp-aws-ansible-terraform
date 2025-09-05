@@ -1,0 +1,17 @@
+# Base Role
+
+# Installs system updates based on value of the Ansible fact, "ansible_os_family."
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+- name: Install updates (RHEL-based)
+  ansible.builtin.dnf:
+    update_only: true
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+
+- name: Install updates (Debian-based)
+  ansible.builtin.apt:
+    upgrade: dist
+    update_cache: true
+  when: ansible_os_family == "Debian"

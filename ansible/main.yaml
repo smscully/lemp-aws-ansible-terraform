@@ -1,0 +1,19 @@
+# LEMP Playbook
+
+# Calls roles required to configure a LEMP server, with settings and packages determined by variables in the host_vars file.
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+---
+- hosts: all
+  become: true
+  roles:
+  - base
+
+- hosts: web_servers
+  become: true
+  roles:
+  - database
+  - php
+  - web_server
+  - selinux

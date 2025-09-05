@@ -1,0 +1,96 @@
+name: "Create AWS Infrastructure"
+
+on:
+  workflow_dispatch:
+    branches:
+    - main
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  TF_LOG: INFO
+  TF_STATE_S3_BUCKET: ${{ secrets.TF_STATE_S3_BUCKET}}
+  TF_VERSION: 1.13.1
+
+jobs:
+
+  terraform:
+    name: "Run Terraform to Create AWS Infrastructure"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout repository to runner
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform on runner
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: $TF_VERSION
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="backend.cnf" -backend-config="bucket=$TF_STATE_S3_BUCKET"
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var-file="example.tfvars" -no-color -input=false
+        env:
+          TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
+        continue-on-error: false
+
+      - name: Terraform Apply
+        id: destroy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+        run: terraform apply -var-file="example.tfvars" -auto-approve -input=false
+        env:
+          TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
+        continue-on-error: false
+
+      - name: Create and Upload Ansible Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ansible-inventory
+          path: ./ansible/inventory
+
+  ansible:
+    name: "Run Ansible Playbook on EC2 Instances"
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_ADMIN_PASSWORD: ${{ secrets.DATABASE_ADMIN_PASSWORD }}
+      DATABASE_ADMIN_USERNAME: ${{ secrets.DATABASE_ADMIN_USERNAME }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      PHP_PASSWORD: ${{ secrets.PHP_PASSWORD }}
+      PHP_USERNAME: ${{ secrets.PHP_USERNAME }}
+    needs: terraform
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./ansible
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Download Ansible Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ansible-inventory
+          path: ./ansible
+
+      - name: Run Ansible Playbook
+        run: |
+          sudo apt-get update && sudo apt-get install -y ansible
+          ansible-playbook main.yaml -v

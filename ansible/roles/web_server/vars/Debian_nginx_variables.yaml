@@ -1,0 +1,6 @@
+web_server_config_path: "/etc/nginx/sites-enabled/{{ domain_name }}"
+apache_package:
+  - "apache2"
+  - "apache2-utils"
+  - "apache2-bin"
+  - "apache2-common"

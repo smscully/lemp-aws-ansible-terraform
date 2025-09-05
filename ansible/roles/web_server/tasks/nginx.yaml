@@ -1,0 +1,63 @@
+- name: Define include_vars file for web server
+  ansible.builtin.include_vars: "{{ ansible_os_family }}_{{ web_server_type }}_variables.yaml"
+
+- name: Uninstall Apache2 (Debian-based)
+  ansible.builtin.apt:
+    name: "{{ apache_package }}"
+    state: absent
+    purge: true
+    autoremove: true
+  when: ansible_os_family == "Debian"
+
+- name: Uninstall Apache2 (RHEL-based)
+  ansible.builtin.dnf:
+    name: "{{ apache_package }}"
+    state: absent
+    autoremove: true
+  when: ansible_os_family == "RedHat"
+
+- name: Install latest version of nginx
+  ansible.builtin.package:
+    name: nginx
+    state: latest
+    update_cache: yes
+
+- name: Copy website files
+  ansible.builtin.copy:
+    src: "../../../../files/{{ instance_name }}/www/"
+    dest: "/var/www/{{ domain_name }}/html"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Determine PHP version
+  shell: php --version | grep '^PHP' | sed 's/^PHP \([0-9]*\.[0-9]*\).*/\1/g'
+  register: php_version
+  changed_when: false
+
+- name: Create nginx configuration file
+  ansible.builtin.template: 
+    src: "templates/{{ ansible_os_family }}_{{ web_server_type }}_conf.j2"
+    dest: "{{ web_server_config_path }}"
+
+- name: Link nginx server block (Debian-based)
+  ansible.builtin.file: 
+    src: "{{ web_server_config_path }}"
+    dest: "/etc/nginx/sites-available/{{ domain_name }}"
+    state: link
+  when: ansible_os_family == "Debian"
+
+- name: Start nginx
+  ansible.builtin.systemd:
+    state: started
+    name: nginx
+
+- name: Remove nginx default (Debian-based)
+  ansible.builtin.file: 
+    path: "{{ item }}"
+    state: absent
+  with_items:
+      - /etc/nginx/sites-enabled/default
+      - /etc/nginx/sites-available/default
+  when: ansible_os_family == "Debian"
+  notify: reload_web_server

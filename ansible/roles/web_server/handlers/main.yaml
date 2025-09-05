@@ -1,0 +1,4 @@
+- name: reload_web_server
+  ansible.builtin.systemd:
+    state: reloaded
+    name: "{{ web_server_type }}"

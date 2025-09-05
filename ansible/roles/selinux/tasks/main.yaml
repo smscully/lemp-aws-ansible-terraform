@@ -1,0 +1,18 @@
+# SELinux Role
+
+# Deploy custom SELinux policies
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+- name: Copy custom policy to server (RHEL-based)
+  ansible.builtin.copy:
+    src: ../files/selinux_httpd_t.pp
+    dest: /usr/share/selinux/targeted/selinux_httpd_t.pp
+    owner: ec2-user
+    group: ec2-user
+    mode: '0644'
+  when: ansible_os_family == "RedHat"
+
+- name: Load custom policy (RHEL-based)
+  ansible.builtin.command: semodule -i /usr/share/selinux/targeted/selinux_httpd_t.pp
+  when: ansible_os_family == "RedHat"

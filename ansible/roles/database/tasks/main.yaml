@@ -1,0 +1,14 @@
+# Database Role
+
+# Installs database packages and runs SQL scripts. 
+
+# This program is licensed under the terms of the GNU General Public License v3.0.
+
+- name: Define include_vars files
+  ansible.builtin.include_vars: "{{ db_server_type }}_{{ ansible_os_family }}_variables.yaml"
+
+- name: Install database server
+  ansible.builtin.include_tasks: "{{ db_server_type }}.yaml"
+
+- name: Create database users and run SQL scripts
+  ansible.builtin.include_tasks: create_db.yaml

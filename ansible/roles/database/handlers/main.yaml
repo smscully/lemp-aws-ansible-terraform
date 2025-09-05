@@ -1,0 +1,4 @@
+- name: restart_db
+  ansible.builtin.systemd:
+    state: restarted
+    name: "{{ db_server_type }}"

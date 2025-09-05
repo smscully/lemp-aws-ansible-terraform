@@ -1,0 +1,5 @@
+database_name: "{{ lookup('env', 'DATABASE_NAME') }}"
+database_admin_username: "{{ lookup('env', 'DATABASE_ADMIN_USERNAME') }}"
+database_admin_password: "{{ lookup('env', 'DATABASE_ADMIN_PASSWORD') }}"
+php_username: "{{ lookup('env', 'PHP_USERNAME') }}"
+php_password: "{{ lookup('env', 'PHP_PASSWORD') }}"

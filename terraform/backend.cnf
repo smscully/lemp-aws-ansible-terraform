@@ -1,0 +1,4 @@
+use_lockfile = true
+key = "lemp-aws-ansible-terraform"
+region = "us-east-1"
+encrypt = true

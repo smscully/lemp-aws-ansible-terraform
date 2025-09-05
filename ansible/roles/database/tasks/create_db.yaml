@@ -1,0 +1,42 @@
+- name: Create database_admin account
+  community.mysql.mysql_user:
+    login_user: root
+    login_unix_socket: "{{ login_unix_socket }}"
+    name: "{{ database_admin_username }}"
+    password: "{{ database_admin_password }}"
+    host: localhost
+    priv: "*.*: ALL,GRANT"
+  notify: restart_db
+
+- name: Create database
+  community.mysql.mysql_db:
+    login_user: "{{ database_admin_username }}"
+    login_password: "{{ database_admin_password }}"
+    name: "{{ database_name }}"
+    state: present
+
+- name: Copy SQL scripts
+  ansible.builtin.copy:
+    src: "../../../../files/{{ instance_name }}/database/dry_weights.sql"
+    dest: /tmp/dry_weights.sql
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Create dry_weights table in database database
+  community.mysql.mysql_db:
+    login_user: "{{ database_admin_username }}"
+    login_password: "{{ database_admin_password }}"
+    name: "{{ database_name }}"
+    state: import
+    encoding: latin1
+    target: /tmp/dry_weights.sql
+
+- name: Create MySQL php_user account
+  community.mysql.mysql_user:
+    login_user: "{{ database_admin_username }}"
+    login_password: "{{ database_admin_password }}"
+    name: "{{ php_username }}"
+    password: "{{ php_password }}"
+    host: localhost
+    priv: "{{ database_name }}.dry_weights: SELECT,GRANT"

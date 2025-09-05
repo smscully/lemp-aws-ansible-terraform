@@ -1,0 +1,10 @@
+- name: Install Certbot and Nginx plugin
+  ansible.builtin.package:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: yes
+
+- name: Obtain Let's Encrypt certificate for domain
+  ansible.builtin.command: certbot --nginx --non-interactive -d {{ domain_name }} -m {{ acme_email }} --agree-tos 
