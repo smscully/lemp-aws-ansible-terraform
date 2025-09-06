@@ -3,7 +3,7 @@ The Ansible Playbooks and Terraform scripts in this repository create a LEMP (Li
 
 Shown below is an architectural diagram of the resources created by the `/terraform/example.tfvars` and `/ansible/main.yaml` files, which create two instances, with sample web apps hosted on web-01.example.com and web-02.example.com. The example.com domain is simply a placeholder, and a functional user-provided domain must be used to successfully deploy the servers, as documented in the [Usage](#Usage) section below.
 
-![ANS-TF-LEMP-AWS diagram](./img/ans-tf-lemp-aws.png)
+![lemp-aws-ansible-terraform diagram](./img/lemp-aws-ansible-terraform.png)
 
 Before customizing and launching the script, review the resources that will be created, as some resources may not be free tier eligible. Please refer to the [Amazon Pricing](https://aws.amazon.com/pricing/) page for specific regional pricing.  
 
