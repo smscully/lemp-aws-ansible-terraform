@@ -1,7 +1,7 @@
 # Ansible Playbooks and Terraform Scripts to Create a LEMP Stack on AWS
 The Ansible Playbooks and Terraform scripts in this repository create a LEMP (Linux-Nginx-MariaDB-PHP) stack on AWS. PHP and SQL files are included that create a database and web pages for a fully-functional sample web app with a Certbot SSL/TLS certificate. A GitHub Actions workflow is used to create the AWS infrastructure and apply the Ansible scripts.
 
-Shown below is an architectural diagram of the resources created by the `/terraform/example.tfvars` and `/ansible/main.yaml` files, which create two instances, with sample web apps hosted on web-01.russetleaf.com and web-02.russetleaf.com. The russetleaf.com domain is simply a placeholder, and a functional user-provided domain must be used to successfully deploy the servers, as documented in the [Usage](#Usage) section below.
+Shown below is an architectural diagram of the resources created by the `/terraform/example.tfvars` and `/ansible/main.yaml` files, which create two instances, with sample web apps hosted on lemp-01.russetleaf.com and lemp-02.russetleaf.com. The russetleaf.com domain is simply a placeholder, and a functional user-provided domain must be used to successfully deploy the servers, as documented in the [Usage](#Usage) section below.
 
 ![lemp-aws-ansible-terraform diagram](./img/lemp-aws-ansible-terraform.png)
 
