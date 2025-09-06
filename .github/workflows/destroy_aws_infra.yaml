@@ -37,7 +37,7 @@ jobs:
 
       - name: Terraform Plan Destroy
         id: plan_destroy
-        run: terraform plan -destroy -var-file="example.tfvars" -no-color -input=false
+        run: terraform plan -destroy -var-file="lemp.tfvars" -no-color -input=false
         env:
           TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
         continue-on-error: false
@@ -45,7 +45,7 @@ jobs:
       - name: Terraform Destroy
         id: destroy
         if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-        run: terraform destroy -var-file="example.tfvars" -auto-approve -input=false
+        run: terraform destroy -var-file="lemp.tfvars" -auto-approve -input=false
         env:
           TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
         continue-on-error: false

@@ -91,8 +91,6 @@ setenforce 1
 setsebool -P httpd_can_network_relay 1
 # Add SSH port to SELinux policy
 semanage port -a -t ssh_port_t -p tcp ${ssh_port} 
-# Required to allow database connectivity
-#setsebool -P httpd_can_network_connect_db 1
 
 # Set hostname and local DNS
 hostnamectl set-hostname ec2
