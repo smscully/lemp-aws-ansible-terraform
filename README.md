@@ -32,6 +32,7 @@ The AWS User Data Bash script installs and configures the security-related softw
 |sshd_config updates to increase security|-|-|
 |Firewall to limit ports to 80, 443, and custom SSH|UFW|nftables|
 |Linux Security Modules|AppArmor|SELinux|
+|Certbot with nginx plugin|Uses standard timer|Uses custom timer| 
 |Fail2ban (with SSH jail)|-|-|
 
 ## Ansible Roles Overview
