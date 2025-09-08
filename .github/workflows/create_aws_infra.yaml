@@ -32,22 +32,18 @@ jobs:
           terraform_version: $TF_VERSION
 
       - name: Terraform Init
-        id: init
         run: terraform init -backend-config="backend.cnf" -backend-config="bucket=$TF_STATE_S3_BUCKET"
 
       - name: Terraform Validate
-        id: validate
         run: terraform validate
 
       - name: Terraform Plan
-        id: plan
         run: terraform plan -var-file="lemp.tfvars" -no-color -input=false
         env:
           TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
         continue-on-error: false
 
       - name: Terraform Apply
-        id: destroy
         if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
         run: terraform apply -var-file="lemp.tfvars" -auto-approve -input=false
         env:

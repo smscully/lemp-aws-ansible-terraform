@@ -32,18 +32,15 @@ jobs:
           terraform_version: $TF_VERSION
  
       - name: Terraform Init
-        id: init
         run: terraform init -backend-config="backend.cnf" -backend-config="bucket=$TF_STATE_S3_BUCKET"
 
       - name: Terraform Plan Destroy
-        id: plan_destroy
         run: terraform plan -destroy -var-file="lemp.tfvars" -no-color -input=false
         env:
           TF_VAR_zone_id: ${{ secrets.AWS_ZONE_ID }}
         continue-on-error: false
 
       - name: Terraform Destroy
-        id: destroy
         if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
         run: terraform destroy -var-file="lemp.tfvars" -auto-approve -input=false
         env:
