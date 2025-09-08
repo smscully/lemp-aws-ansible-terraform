@@ -1,5 +1,5 @@
 ########################################
-# Set Backend to S3 with DynamoDB
+# Set Backend to S3
 ########################################
 
 # Backend attributes are read from backend.cnf
