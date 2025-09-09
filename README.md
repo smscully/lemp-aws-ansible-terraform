@@ -142,7 +142,7 @@ gh workflow run create_aws_infra.yaml
 To access the Ubuntu 22 instance, enter the command below in the shell. Change the username to ssh_al if using Amazon Linux 2023. The IP address of each EC2 instance is displayed as an output of the Terraform script, identified by the value `public_ip`. The Terraform outputs can be viewed in the GitHub Actions log for the `create_aws_infra.yaml` Workflow.
 
 ```bash
-ssh -i ~/.ssh/aws-test-env-ed25519 -p 2222 ssh_ubuntu@[public_ip]
+ssh -i ~/.ssh/id_ed25519_lemp -p 2222 ssh_ubuntu@[public_ip]
 ```
 
 ### Step 9. Confirm Security Measures Have Been Applied
